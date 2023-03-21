@@ -1,0 +1,27 @@
+{
+  "name": "dah-doh",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "mocha src/**/tests/**/*.test.ts",
+    "coverage": "nyc mocha src/**/tests/**/*.test.ts"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.4",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^18.15.3",
+    "@typescript-eslint/eslint-plugin": "^5.55.0",
+    "@typescript-eslint/parser": "^5.55.0",
+    "chai": "^4.3.7",
+    "eslint": "^8.36.0",
+    "mocha": "^10.2.0",
+    "node-fetch": "^3.3.1",
+    "nyc": "^15.1.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.2",
+    "vite": "^4.2.1"
+  }
+}
