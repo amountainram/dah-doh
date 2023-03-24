@@ -179,7 +179,7 @@ describe('fetch test', () => {
     [
       {name: 'google.com', type: ResourceType.SOA},
       (data) => {
-        const soaRecord = (data as SoaRecord[])[0]
+        const soaRecord = data as SoaRecord
         return soaRecord.nsname.replace(/\.?$/, '') === 'ns1.google.com'
           && soaRecord.hostmaster.replace(/\.?$/, '') === 'dns-admin.google.com'
           && soaRecord.serial === 517920828
