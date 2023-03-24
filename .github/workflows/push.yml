@@ -1,0 +1,39 @@
+name: 'branch push'
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [14.x, 16.x, 18.x]
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: yarn
+
+      - name: Configure yarn
+        run: |
+          yarn set version stable
+          yarn config set nodeLinker node-modules
+
+      - name: Install
+        run: yarn
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Check types
+        run: yarn check-types
+
+      - name: Test
+        run: yarn test
