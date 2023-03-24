@@ -5,7 +5,13 @@ import nodeFetch from 'node-fetch'
 
 import {promises} from '../lib'
 
-const {resolve4, resolve6, resolveCaa, resolveCname} = promises
+const {
+  resolve4,
+  resolve6,
+  resolveCaa,
+  resolveCname,
+  resolveMx
+} = promises
 
 describe.only('node impl vs this lib impl', () => {
   const {fetch: originalFetch} = globalThis
@@ -57,5 +63,15 @@ describe.only('node impl vs this lib impl', () => {
     expect(
       {...(res as PromiseRejectedResult).reason}
     ).to.eql({...(nativeRes as PromiseRejectedResult).reason})
+  })
+
+  it('should resolve a smtp server', async () => {
+    const hostname = 'google.com'
+    const [nativeRes, res] = await Promise.all([
+      dns.resolveMx(hostname),
+      resolveMx(hostname)
+    ])
+
+    expect(res).to.have.deep.members(nativeRes)
   })
 })

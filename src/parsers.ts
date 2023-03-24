@@ -16,6 +16,8 @@ interface Parsable {
   Answer?: Answer[]
 }
 
+const noFinalDot = (input: string) => input.replace(/\.?$/, '')
+
 const getData = ({data}: {data: string}) => data
 
 const getDataAndSplit = (entry: {data: string}) => getData(entry).split(' ')
@@ -59,7 +61,7 @@ const mxRecordReducer = (mx: Partial<MxRecord>, item: string, idx: number) => {
     mx.priority = Number.parseInt(item)
     break
   case 1:
-    mx.exchange = item
+    mx.exchange = noFinalDot(item)
     break
   }
   return mx
