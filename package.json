@@ -1,13 +1,44 @@
 {
   "name": "dah-doh",
+  "version": "0.0.1",
+  "author": {
+    "name": "Umberto Toniolo",
+    "email": "amountainram@gmail.com",
+    "url": "https://github.com/amountainram"
+  },
+  "license": "SEE LICENSE IN LICENSE",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "default": "./dist/index.js",
+      "import": "./dist/index.js",
+      "node": "./dist/index.cjs",
+      "require": "./dist/index.cjs",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./promises": {
+      "default": "./dist/promises.js",
+      "import": "./dist/promises.js",
+      "node": "./dist/promises.cjs",
+      "require": "./dist/promises.cjs",
+      "types": "./dist/types/promises.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "package.json"
+  ],
   "scripts": {
     "lint": "eslint .",
-    "test": "mocha src/**/tests/**/*.test.ts",
-    "coverage": "nyc mocha src/**/tests/**/*.test.ts"
+    "test": "mocha **/*.test.ts src/tests/*.test.ts",
+    "coverage": "nyc yarn test",
+    "check-types": "tsc",
+    "build:types": "tsc --project config/tsconfig.types.json",
+    "build:lib": "vite build",
+    "build": "run-s build:lib build:types"
   },
   "devDependencies": {
     "@types/chai": "^4.3.4",

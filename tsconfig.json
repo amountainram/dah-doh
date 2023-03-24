@@ -11,5 +11,6 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "experimentalDecorators": true,
-  }
+  },
+  "exclude": ["dist", "node_modules"]
 }

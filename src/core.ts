@@ -22,6 +22,7 @@ enum ResourceType {
   MX = 'MX',
   NAPTR = 'NAPTR',
   NS = 'NS',
+  PTR = 'PTR',
   SOA = 'SOA',
   SRV = 'SRV',
   TXT = 'TXT'

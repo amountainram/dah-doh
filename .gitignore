@@ -1,6 +1,7 @@
 .yarn
 .yarnrc.yml
 yarn.lock
+.pnp.*
 
 dist
 node_modules

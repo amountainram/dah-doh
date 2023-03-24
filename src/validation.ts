@@ -175,6 +175,8 @@ const fromNumberToResourceType = (num: number): ResourceType | undefined => {
     return ResourceType.CNAME
   case 6:
     return ResourceType.SOA
+  case 12:
+    return ResourceType.PTR
   case 15:
     return ResourceType.MX
   case 16:
@@ -208,6 +210,8 @@ const fromResourceTypeToNumber = (rt: ResourceType): number | undefined => {
     return 35
   case ResourceType.NS:
     return 2
+  case ResourceType.PTR:
+    return 12
   case ResourceType.SOA:
     return 6
   case ResourceType.SRV:

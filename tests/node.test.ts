@@ -3,7 +3,7 @@ import * as dns from 'dns/promises'
 import {describe, it} from 'mocha'
 import nodeFetch from 'node-fetch'
 
-import {promises} from '../lib'
+import {promises} from '../src'
 
 const {
   resolve4,
@@ -12,10 +12,11 @@ const {
   resolveCname,
   resolveMx,
   resolveNaptr,
-  resolveNs
+  resolveNs,
+  resolvePtr
 } = promises
 
-describe.only('node impl vs this lib impl', () => {
+describe('node impl vs this lib impl', () => {
   const {fetch: originalFetch} = globalThis
   before(async () => {
     if (typeof originalFetch === 'undefined') {
@@ -92,6 +93,16 @@ describe.only('node impl vs this lib impl', () => {
     const [nativeRes, res] = await Promise.all([
       dns.resolveNs(hostname),
       resolveNs(hostname)
+    ])
+
+    expect(res).to.have.members(nativeRes)
+  })
+
+  it('should reverse a ptr to a name', async () => {
+    const hostname = '8.8.8.8.in-addr.arpa'
+    const [nativeRes, res] = await Promise.all([
+      dns.resolvePtr(hostname),
+      resolvePtr(hostname)
     ])
 
     expect(res).to.have.members(nativeRes)
