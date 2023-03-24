@@ -8,3 +8,5 @@ package-lock.json
 .nyc_output
 .vscode
 .idea
+
+.nvmrc
