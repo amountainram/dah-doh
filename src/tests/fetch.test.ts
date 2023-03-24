@@ -3,10 +3,11 @@ import type {MxRecord, SoaRecord} from 'dns'
 import {describe, it} from 'mocha'
 import nodeFetch from 'node-fetch'
 
-import type {DnsJson, TryIntoError} from '../fetch'
-import {ResourceType} from '../fetch'
-import {resolve} from '../fetch'
-import {isDnsJson} from '../fetch'
+import type {DnsJson} from '../core'
+import {ResourceType} from '../core'
+import {resolve} from '../core'
+import type {TryIntoError} from '../validation'
+import {isDnsJson} from '../validation'
 
 describe('json to dns response validation', () => {
   const isDnsJsonTestCases: [unknown, Omit<TryIntoError, 'input'> | DnsJson][] = [
@@ -197,7 +198,6 @@ describe('fetch test', () => {
   tests.forEach(([{name, type}, expected]) => {
     const message = `for question ${name} and record type ${type ?? 'A'}, should get data ${JSON.stringify(expected)}`
     it(message, async () => {
-      // @ts-expect-error wrong overload types
       const data = await resolve(name, type)
       expect(expected(data))
     })
