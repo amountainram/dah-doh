@@ -29,7 +29,10 @@
   },
   "files": [
     "dist",
-    "package.json"
+    "promises",
+    "./package.json",
+    "./LICENSE",
+    "./README.md"
   ],
   "scripts": {
     "lint": "eslint .",
