@@ -183,6 +183,8 @@ const fromNumberToResourceType = (num: number): ResourceType | undefined => {
     return ResourceType.AAAA
   case 33:
     return ResourceType.SRV
+  case 35:
+    return ResourceType.NAPTR
   case 257:
     return ResourceType.CAA
   default:
@@ -202,6 +204,8 @@ const fromResourceTypeToNumber = (rt: ResourceType): number | undefined => {
     return 5
   case ResourceType.MX:
     return 15
+  case ResourceType.NAPTR:
+    return 35
   case ResourceType.NS:
     return 2
   case ResourceType.SOA:

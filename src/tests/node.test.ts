@@ -10,7 +10,9 @@ const {
   resolve6,
   resolveCaa,
   resolveCname,
-  resolveMx
+  resolveMx,
+  resolveNaptr,
+  resolveNs
 } = promises
 
 describe.only('node impl vs this lib impl', () => {
@@ -73,5 +75,25 @@ describe.only('node impl vs this lib impl', () => {
     ])
 
     expect(res).to.have.deep.members(nativeRes)
+  })
+
+  it('should resolve a naptr address', async () => {
+    const hostname = '4.4.2.2.3.3.5.6.8.1.4.4.e164.arpa'
+    const [nativeRes, res] = await Promise.all([
+      dns.resolveNaptr(hostname),
+      resolveNaptr(hostname)
+    ])
+
+    expect(res).to.have.deep.members(nativeRes)
+  })
+
+  it('should resolve an ns address', async () => {
+    const hostname = 'google.com'
+    const [nativeRes, res] = await Promise.all([
+      dns.resolveNs(hostname),
+      resolveNs(hostname)
+    ])
+
+    expect(res).to.have.members(nativeRes)
   })
 })

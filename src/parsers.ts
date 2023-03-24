@@ -1,6 +1,7 @@
 import type {
   CaaRecord,
   MxRecord,
+  NaptrRecord,
   SoaRecord,
   SrvRecord
 } from 'dns'
@@ -27,6 +28,8 @@ const toStrings = ({Answer = []}: Parsable) => Answer.map(getData)
 const toText = ({Answer = []}: Parsable) => Answer.map((entry) => [getData(entry)])
 
 const toRecordWithTtl = ({Answer = []}: Parsable) => Answer.map(({TTL: ttl, data: address}) => ({ttl, address}))
+
+const toAddresses = (res: Parsable) => toStrings(res).map(noFinalDot)
 
 // custom parsers
 
@@ -69,6 +72,34 @@ const mxRecordReducer = (mx: Partial<MxRecord>, item: string, idx: number) => {
 
 const toMxRecords = ({Answer = []}: Parsable) => Answer.map((entry) =>
   getDataAndSplit(entry).reduce(mxRecordReducer, {}) as MxRecord
+)
+
+const naptrRecordReducer = (naptr: Partial<NaptrRecord>, item: string, idx: number) => {
+  switch (idx) {
+  case 0:
+    naptr.order = Number.parseInt(item)
+    break
+  case 1:
+    naptr.preference = Number.parseInt(item)
+    break
+  case 2:
+    naptr.flags = item
+    break
+  case 3:
+    naptr.service = item
+    break
+  case 4:
+    naptr.regexp = item
+    break
+  case 5:
+    naptr.replacement = noFinalDot(item)
+    break
+  }
+  return naptr
+}
+
+const toNaptrRecords = ({Answer = []}: Parsable) => Answer.map((entry) => 
+  getDataAndSplit(entry).reduce(naptrRecordReducer, {}) as NaptrRecord
 )
 
 const soaRecordReducer = (soa: Partial<SoaRecord>, item: string, idx: number) => {
@@ -124,13 +155,18 @@ const toSrvRecords = ({Answer = []}: Parsable) => Answer.map((entry) =>
   getDataAndSplit(entry).reduce(srvRecordReducer, {}) as SrvRecord
 )
 
+const hasData = (res: Parsable): res is Required<Parsable> => res.Answer?.[0] !== undefined
+
 export type {Answer}
 export {
   toStrings,
   toText,
   toRecordWithTtl,
+  toAddresses,
   toCaaRecords,
   toMxRecords,
+  toNaptrRecords,
   toSoaRecord,
-  toSrvRecords
+  toSrvRecords,
+  hasData,
 }

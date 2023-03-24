@@ -20,6 +20,7 @@ enum ResourceType {
   CNAME = 'CNAME',
   CAA = 'CAA',
   MX = 'MX',
+  NAPTR = 'NAPTR',
   NS = 'NS',
   SOA = 'SOA',
   SRV = 'SRV',

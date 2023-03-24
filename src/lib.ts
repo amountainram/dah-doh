@@ -14,7 +14,7 @@ import {rawResolve, ResourceType} from './core'
 import {resolve as promisedResolve} from './core'
 import {makeNoDataError} from './errors'
 import {
-  toCaaRecords, toMxRecords, toRecordWithTtl, toStrings
+  hasData, toAddresses, toCaaRecords, toMxRecords, toNaptrRecords, toRecordWithTtl, toStrings
 } from './parsers'
 import {isResourceType} from './validation'
 
@@ -99,7 +99,7 @@ function resolveSync(
 }
 
 const handleResolve4 = (hostname: string, options?: ResolveWithTtlOptions | ResolveOptions) => async (res: DnsJson) => {
-  if (res.Answer?.[0] === undefined) {
+  if (!hasData(res)) {
     return Promise.reject(makeNoDataError(hostname, ResourceType.A))
   }
 
@@ -133,7 +133,7 @@ function resolve4Sync(
 }
 
 const handleResolve6 = (hostname: string, options?: ResolveWithTtlOptions | ResolveOptions) => async (res: DnsJson) => {
-  if (res.Answer?.[0] === undefined) {
+  if (!hasData(res)) {
     return Promise.reject(makeNoDataError(hostname, ResourceType.AAAA))
   }
 
@@ -170,7 +170,7 @@ function resolve6Sync(
 async function resolveCaa(hostname: string): Promise<CaaRecord[]> {
   return rawResolve(hostname, ResourceType.CAA)
     .then(
-      (res) => res.Answer?.[0] === undefined
+      (res) => !hasData(res)
         ? Promise.reject(makeNoDataError(hostname, ResourceType.CAA))
         : toCaaRecords(res)
     )
@@ -185,7 +185,7 @@ function resolveCaaSync(hostname: string, callback: (err: NodeJS.ErrnoException 
 async function resolveCname(hostname: string): Promise<string[]> {
   return rawResolve(hostname, ResourceType.CNAME)
     .then(
-      (res) => res.Answer?.[0] === undefined
+      (res) => !hasData(res)
         ? Promise.reject(makeNoDataError(hostname, ResourceType.CNAME))
         : toStrings(res)
     )
@@ -212,6 +212,36 @@ function resolveMxSync(hostname: string, callback: (err: NodeJS.ErrnoException |
     .catch((err) => callback(err, []))
 }
 
+async function resolveNaptr(hostname: string): Promise<NaptrRecord[]> {
+  return rawResolve(hostname, ResourceType.NAPTR)
+    .then(
+      (res) => hasData(res)
+        ? toNaptrRecords(res)
+        : Promise.reject(makeNoDataError(hostname, ResourceType.NAPTR))
+    )
+}
+
+function resolveNaptrSync(hostname: string, callback: (err: NodeJS.ErrnoException | null, addresses: NaptrRecord[]) => void): void {
+  resolveNaptr(hostname)
+    .then((data) => callback(null, data))
+    .catch((err) => callback(err, []))
+}
+
+async function resolveNs(hostname: string): Promise<string[]> {
+  return rawResolve(hostname, ResourceType.NS)
+    .then(
+      (res) => hasData(res)
+        ? toAddresses(res)
+        : Promise.reject(makeNoDataError(hostname, ResourceType.NS))
+    )
+}
+
+function resolveNsSync(hostname: string, callback: (err: NodeJS.ErrnoException | null, addresses: string[]) => void): void {
+  resolveNs(hostname)
+    .then((data) => callback(null, data))
+    .catch((err) => callback(err, []))
+}
+
 const promises = {
   resolve,
   resolve4,
@@ -219,6 +249,8 @@ const promises = {
   resolveCaa,
   resolveCname,
   resolveMx,
+  resolveNaptr,
+  resolveNs
 }
 
 export {
@@ -228,5 +260,7 @@ export {
   resolve6Sync as resolve6,
   resolveCaaSync as resolveCaa,
   resolveCnameSync as resolveCname,
-  resolveMxSync as resolveMx
+  resolveMxSync as resolveMx,
+  resolveNaptrSync as resolveNaptr,
+  resolveNsSync as resolveNs
 }
