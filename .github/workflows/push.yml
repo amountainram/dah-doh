@@ -25,6 +25,7 @@ jobs:
         run: |
           yarn set version stable
           yarn config set nodeLinker node-modules
+          yarn plugin import version
 
       - name: Install
         run: yarn install --immutable
