@@ -1,5 +1,5 @@
-.yarn
-.yarnrc.yml
+.yarn/*
+!.yarn/releases
 .pnp.*
 
 dist
