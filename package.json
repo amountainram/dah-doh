@@ -1,6 +1,6 @@
 {
   "name": "dah-doh",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": {
     "name": "Umberto Toniolo",
     "email": "amountainram@gmail.com",
@@ -10,7 +10,7 @@
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
       "default": "./dist/index.js",
