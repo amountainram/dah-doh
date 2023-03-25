@@ -1,5 +1,5 @@
-import type {ResourceType} from './core'
-import {DnsResponseCode} from './core'
+import type {ResourceType} from './core.js'
+import {DnsResponseCode} from './core.js'
 
 interface ErrorCtx {
   resourceType: ResourceType

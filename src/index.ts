@@ -9,8 +9,8 @@ import type {
   SoaRecord,
   SrvRecord
 } from 'dns'
-import type {Records} from './core'
-import * as promises from './promises'
+import type {Records} from './core.js'
+import * as promises from './promises.js'
 
 interface Exception {
   errno: number | undefined
