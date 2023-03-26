@@ -1,7 +1,6 @@
 import {expect} from 'chai'
 import * as dns from 'dns/promises'
 import {describe, it} from 'mocha'
-import nodeFetch from 'node-fetch'
 
 import {promises} from '../src'
 
@@ -20,12 +19,7 @@ describe('node impl vs this lib impl', () => {
   const {fetch: originalFetch} = globalThis
   before(async () => {
     if (typeof originalFetch === 'undefined') {
-      Object.defineProperty(globalThis, 'fetch', {configurable: true, writable: true, value: nodeFetch})
-    }
-  })
-  after(() => {
-    if(typeof originalFetch === 'undefined') {
-      Object.defineProperty(globalThis, 'fetch', {configurable: true, writable: true, value: originalFetch})
+      await import('../src/polyfill')
     }
   })
 
