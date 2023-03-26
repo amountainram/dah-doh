@@ -17,7 +17,27 @@ while providing the same module interface of node `dns` module.
 
 ## How to use
 
+### Node: bundle polyfill
+
+// TODO
+
 ### Node: 14+
+
+When using es modules
+
+```javascript
+import 'doh-dah/polyfill'
+import * as dns from 'doh-dah'
+```
+
+or in commonjs
+
+```javascript
+require('doh-dah/polyfill')
+const dns = require('doh-dah')
+```
+
+### Node: 18+
 
 When using es modules
 
@@ -30,10 +50,6 @@ or in commonjs
 ```javascript
 const dns = require('doh-dah')
 ```
-
-### Node: bundle polyfill
-
-// TODO
 
 ### Browser: ES6+ import map
 
