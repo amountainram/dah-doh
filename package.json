@@ -44,7 +44,7 @@
   ],
   "scripts": {
     "lint": "eslint .",
-    "test": "mocha **/*.test.ts src/tests/*.test.ts",
+    "test": "mocha './config/test-setup.ts' '**/*.test.ts' 'src/tests/*.test.ts'",
     "coverage": "nyc yarn test",
     "check-types": "tsc",
     "build:types": "tsc --project config/tsconfig.types.json",

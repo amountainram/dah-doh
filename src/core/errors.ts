@@ -1,9 +1,6 @@
-import type {ResourceType} from './core.js'
-import {DnsResponseCode} from './core.js'
-
 interface ErrorCtx {
-  resourceType: ResourceType
-  code: DnsResponseCode | 'NODATA'
+  resourceType: string
+  code: number | 'NODATA'
   hostname: string
 }
 
@@ -14,13 +11,13 @@ interface DnsError {
   hostname?: string | undefined
 }
 
-const toString = (input: DnsResponseCode | 'NODATA'): string => {
+const toString = (input: number | 'NODATA'): string => {
   if(typeof input === 'string') {
     return input
   }
 
   switch (input) {
-  case DnsResponseCode.ServerFailure:
+  case 2:
     return 'SERVFAIL'
   default:
     return ''
@@ -43,7 +40,7 @@ const makeError = (ctx: ErrorCtx): DnsError & Error => {
   })
 }
 
-const makeNoDataError = (hostname: string, resourceType: ResourceType): DnsError & Error =>
+const makeNoDataError = (hostname: string, resourceType: string): DnsError & Error =>
   makeError({hostname, code: 'NODATA', resourceType})
 
-export {makeError, makeNoDataError}
+export {makeNoDataError}

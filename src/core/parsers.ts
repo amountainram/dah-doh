@@ -5,13 +5,7 @@ import type {
   SoaRecord,
   SrvRecord
 } from 'dns'
-
-interface Answer {
-  name: string
-  type: number,
-  TTL: number,
-  data: string
-}
+import type {Answer} from './dns-json'
 
 interface Parsable {
   Answer?: Answer[]
