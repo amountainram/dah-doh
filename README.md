@@ -1,6 +1,19 @@
 # dah-doh
 
-a doh (dns-over-http) client which discriminate against no globalThis
+a doh (dns-over-http) client which discriminate against no globalThis.
+
+## Rationale
+
+This package main purpose is to serve as a browser polyfill for node
+built-in package `dns` and `dns/promises` (which is the promisified version of `dns`).
+
+Since the DNS protocol runs over UDP protocol and webpages cannot access the underlying OS sockets,
+`dah-doh` allows to perform DNS queries and NS lookups over the DOH protocol using mainly
+
+- dns.google [`8.8.8.8`, `8.8.4.4`]
+- cloudflare-dns.com/dns.cloudflare.net/one.one.one.one [`1.1.1.1`]
+
+while providing the same module interface of node `dns` module.
 
 ## How to use
 
