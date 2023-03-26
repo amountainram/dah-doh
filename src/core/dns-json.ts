@@ -67,5 +67,9 @@ enum ResourceType {
   TXT = 'TXT'
 }
 
+enum ExtraResourceType {
+  ANY = 'ANY'
+}
+
 export type {Answer, DnsJson}
-export {DnsResponseCode, ResourceType}
+export {DnsResponseCode, ResourceType, ExtraResourceType}

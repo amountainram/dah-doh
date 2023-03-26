@@ -1,4 +1,7 @@
 import type {
+  AnyARecord,
+  AnyNsRecord,
+  AnyRecord,
   CaaRecord,
   MxRecord,
   NaptrRecord,
@@ -6,6 +9,7 @@ import type {
   SrvRecord
 } from 'dns'
 import type {Answer} from './dns-json'
+import {ResourceType} from './dns-json.js'
 
 interface Parsable {
   Answer?: Answer[]
@@ -149,6 +153,44 @@ const toSrvRecords = ({Answer = []}: Parsable) => Answer.map((entry) =>
   getDataAndSplit(entry).reduce(srvRecordReducer, {}) as SrvRecord
 )
 
+const getParser = ({type, ...entry}: Omit<Answer, 'data'>): ((data: string) => AnyRecord) | undefined => {
+  switch (type) {
+  case 1:
+    return (data) => ({type: ResourceType.A, ttl: entry.TTL, address: noFinalDot(data)}) as AnyARecord
+  case 2:
+    return (data) => ({type: ResourceType.NS, value: noFinalDot(data)}) as AnyNsRecord
+  // case 5:
+  //   return {type: ResourceType.CNAME, parser: undefined}
+  // case 6:
+  //   return {type: ResourceType.SOA, parser: undefined}
+  // case 12:
+  //   return {type: ResourceType.PTR, parser: undefined}
+  // case 15:
+  //   return {type: ResourceType.MX, parser: undefined}
+  // case 16:
+  //   return ResourceType.TXT
+  // case 28:
+  //   return ResourceType.AAAA
+  // case 33:
+  //   return ResourceType.SRV
+  // case 35:
+  //   return ResourceType.NAPTR
+  // case 257:
+  //   return ResourceType.CAA
+  default:
+    return undefined
+  }
+}
+
+const toAnyRecords = ({Answer = []}: Parsable) => Answer.reduce<AnyRecord[]>((answers, {data, ...entry}) => {
+  const parser = getParser(entry)
+  if(parser) {
+    answers.push(parser(data))
+  }
+  
+  return answers
+}, [])
+
 const hasData = (res: Parsable): res is Required<Parsable> => res.Answer?.[0] !== undefined
 
 export type {Answer}
@@ -162,5 +204,6 @@ export {
   toNaptrRecords,
   toSoaRecord,
   toSrvRecords,
+  toAnyRecords,
   hasData,
 }

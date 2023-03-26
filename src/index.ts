@@ -157,6 +157,16 @@ function resolveTxt(hostname: string, callback: (err: NodeJS.ErrnoException | nu
     .catch((err) => callback(err, []))
 }
 
+function resolveAny(hostname: string, callback: (err: NodeJS.ErrnoException | null, addresses: AnyRecord[]) => void): void {
+  promises.resolveAny(hostname)
+    .then((data) => callback(null, data))
+    .catch((err) => callback(err, []))
+}
+
+function reverse(ip: string, callback: (err: NodeJS.ErrnoException | null, hostnames: string[]) => void): void {
+  // TODO
+}
+
 export {
   promises,
   resolve,
@@ -171,4 +181,6 @@ export {
   resolveSoa,
   resolveSrv,
   resolveTxt,
+  resolveAny,
+  reverse
 }

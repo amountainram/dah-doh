@@ -6,7 +6,7 @@ import type {
   SoaRecord,
   SrvRecord
 } from 'dns'
-import type {DnsJson} from './dns-json'
+import type {DnsJson, ExtraResourceType} from './dns-json'
 import * as parsers from './parsers.js'
 import {ResourceType} from './dns-json.js'
 
@@ -87,7 +87,7 @@ const fetch = async (info: URL, init: RequestInit & {method: string}): Promise<D
       return Promise.reject(new TypeError('Wrong content-type header'))
     })
 
-async function rawResolve(hostname: string, resourceType: ResourceType, options?: Partial<QueryOptions>): Promise<DnsJson> {
+async function rawResolve(hostname: string, resourceType: ResourceType | ExtraResourceType, options?: Partial<QueryOptions>): Promise<DnsJson> {
   const {protocol, fetch: fetchOptions, server} = resolveOptions(options ?? defaultOptions)
   const {protocol: currentProtocol} = server.match(/^(<?protocol>[^:]+):\/\//)?.groups ?? {}
   const info = currentProtocol !== undefined ? server : `${protocol}://${server}`
