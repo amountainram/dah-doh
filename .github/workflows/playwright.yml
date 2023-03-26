@@ -1,0 +1,85 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  file-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      diff: ${{ steps.filter.outputs.diff }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            diff:
+              - yarn.lock
+              - '.github/**'
+              - 'e2e/**'
+              - 'src/**'
+
+  test:
+    needs:
+      - file-changes
+    if: needs.file-changes.outputs.diff == 'true'
+
+    timeout-minutes: 60
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: yarn
+
+      - name: Configure yarn
+        run: |
+          yarn set version stable
+          yarn config set nodeLinker node-modules
+          yarn plugin import version
+
+      - name: Install
+        run: yarn install --immutable
+
+      - name: Build
+        run: yarn build
+
+      - name: Get installed Playwright version
+        id: playwright-version
+        run: echo "PLAYWRIGHT_VERSION=$(yarn dep-version @playwright/test)" >> $GITHUB_ENV
+
+      - name: Cache playwright binaries
+        uses: actions/cache@v3
+        id: playwright-cache
+        with:
+          path: |
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
+
+      - name: Install Playwright Browsers
+        run: yarn dlx playwright install-deps
+
+      - name: Install Playwright
+        run: yarn dlx playwright install
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+
+      - name: Run Playwright tests
+        run: yarn test:e2e
+
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
