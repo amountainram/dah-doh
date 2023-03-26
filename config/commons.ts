@@ -1,5 +1,5 @@
 import type {
-  BuildOptions, DepOptimizationOptions, LibraryOptions, OptimizedDepInfo
+  BuildOptions, DepOptimizationOptions, LibraryOptions
 } from 'vite'
 import {dirname, resolve} from 'path'
 import {fileURLToPath} from 'url'
