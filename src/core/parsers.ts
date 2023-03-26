@@ -99,10 +99,10 @@ const toNaptrRecords = ({Answer = []}: Parsable) => Answer.map((entry) =>
 const soaRecordReducer = (soa: Partial<SoaRecord>, item: string, idx: number) => {
   switch (idx) {
   case 0:
-    soa.nsname = item
+    soa.nsname = noFinalDot(item)
     break
   case 1:
-    soa.hostmaster = item
+    soa.hostmaster = noFinalDot(item)
     break
   case 2:
     soa.serial = Number.parseInt(item)

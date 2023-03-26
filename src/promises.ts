@@ -26,7 +26,10 @@ const {
   toMxRecords,
   toNaptrRecords,
   toRecordWithTtl,
-  toStrings
+  toStrings,
+  toSoaRecord,
+  toSrvRecords,
+  toText
 } = parsers
 
 async function resolve(hostname: string): Promise<string[]>
@@ -140,6 +143,33 @@ async function resolvePtr(hostname: string): Promise<string[]> {
     )
 }
 
+async function resolveSoa(hostname: string): Promise<SoaRecord> {
+  return rawResolve(hostname, ResourceType.SOA)
+    .then(
+      (res) => hasData(res)
+        ? toSoaRecord(res)
+        : Promise.reject(makeNoDataError(hostname, ResourceType.SOA))
+    )
+}
+
+async function resolveSrv(hostname: string): Promise<SrvRecord[]> {
+  return rawResolve(hostname, ResourceType.SRV)
+    .then(
+      (res) => hasData(res)
+        ? toSrvRecords(res)
+        : Promise.reject(makeNoDataError(hostname, ResourceType.SRV))
+    )
+}
+
+async function resolveTxt(hostname: string): Promise<string[][]> {
+  return rawResolve(hostname, ResourceType.TXT)
+    .then(
+      (res) => hasData(res)
+        ? toText(res)
+        : Promise.reject(makeNoDataError(hostname, ResourceType.TXT))
+    )
+}
+
 export type {Records}
 export {
   resolve,
@@ -150,5 +180,8 @@ export {
   resolveMx,
   resolveNaptr,
   resolveNs,
-  resolvePtr
+  resolvePtr,
+  resolveSoa,
+  resolveSrv,
+  resolveTxt,
 }

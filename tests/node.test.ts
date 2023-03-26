@@ -3,6 +3,7 @@ import * as dns from 'dns/promises'
 import {describe, it} from 'mocha'
 
 import {promises} from '../src'
+import type {SoaRecord} from 'dns'
 
 const {
   resolve4,
@@ -12,7 +13,9 @@ const {
   resolveMx,
   resolveNaptr,
   resolveNs,
-  resolvePtr
+  resolvePtr,
+  resolveSoa,
+  resolveTxt
 } = promises
 
 describe('node impl vs this lib impl', () => {
@@ -93,5 +96,29 @@ describe('node impl vs this lib impl', () => {
     ])
 
     expect(res).to.have.members(nativeRes)
+  })
+
+  it('should resolve the start of authority', async () => {
+    const hostname = 'google.com'
+    const [nativeRes, res] = await Promise.all<Promise<Partial<SoaRecord>>[]>([
+      dns.resolveSoa(hostname),
+      resolveSoa(hostname)
+    ])
+
+    // serial number depends on the zone hence is trimmed out
+    // from this check since it could be different
+    delete nativeRes.serial
+    delete res.serial
+    expect(res).to.deep.include(nativeRes)
+  })
+
+  it('should resolve TXT records', async () => {
+    const hostname = 'google.com'
+    const [nativeRes, res] = await Promise.all([
+      dns.resolveTxt(hostname),
+      resolveTxt(hostname)
+    ])
+
+    expect(res).to.have.deep.members(nativeRes)
   })
 })

@@ -138,6 +138,25 @@ function resolvePtr(hostname: string, callback: (err: NodeJS.ErrnoException | nu
     .catch((err) => callback(err, []))
 }
 
+function resolveSoa(hostname: string, callback: (err: NodeJS.ErrnoException | null, addresses: SoaRecord) => void): void {
+  promises.resolveSoa(hostname)
+    .then((data) => callback(null, data))
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .catch((err) => callback(err, {} as any))
+}
+
+function resolveSrv(hostname: string, callback: (err: NodeJS.ErrnoException | null, addresses: SrvRecord[]) => void): void {
+  promises.resolveSrv(hostname)
+    .then((data) => callback(null, data))
+    .catch((err) => callback(err, []))
+}
+
+function resolveTxt(hostname: string, callback: (err: NodeJS.ErrnoException | null, addresses: string[][]) => void): void {
+  promises.resolveTxt(hostname)
+    .then((data) => callback(null, data))
+    .catch((err) => callback(err, []))
+}
+
 export {
   promises,
   resolve,
@@ -149,4 +168,7 @@ export {
   resolveNaptr,
   resolveNs,
   resolvePtr,
+  resolveSoa,
+  resolveSrv,
+  resolveTxt,
 }
