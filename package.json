@@ -13,7 +13,7 @@
   "types": "./dist/types/index.d.ts",
   "browser": {
     "./promises": "./dist/promises.js",
-    "doh-dah": "./dist/index.js"
+    "dah-doh": "./dist/index.js"
   },
   "exports": {
     ".": {
