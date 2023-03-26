@@ -1,6 +1,6 @@
 {
   "name": "dah-doh",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "author": {
     "name": "Umberto Toniolo",
     "email": "amountainram@gmail.com",
@@ -11,10 +11,7 @@
   "main": "./dist/cjs/index.cjs",
   "module": "./dist/es/index.js",
   "types": "./dist/types/index.d.ts",
-  "browser": {
-    "./promises": "./dist/promises.js",
-    "dah-doh": "./dist/index.js"
-  },
+  "browser": "./dist/index.es.js",
   "exports": {
     ".": {
       "import": "./dist/es/index.js",
@@ -23,12 +20,19 @@
     "./promises": {
       "import": "./dist/es/promises.js",
       "require": "./dist/cjs/promises.cjs"
+    },
+    "./polyfill": {
+      "import": "./dist/es/polyfill.js",
+      "require": "./dist/cjs/polyfill.cjs"
     }
   },
   "typesVersions": {
     "*": {
       "promises": [
         "./dist/types/promises.d.ts"
+      ],
+      "polyfill": [
+        "./dist/types/polyfill.d.ts"
       ]
     }
   },
@@ -44,17 +48,21 @@
     "coverage": "nyc yarn test",
     "check-types": "tsc",
     "build:types": "tsc --project config/tsconfig.types.json",
-    "build:browser": "vite build",
+    "build:es6": "vite build",
+    "build:es5": "babel dist/index.es.js -o dist/es5/index.umd.js",
     "build:es": "vite build -c config/es.vite.ts",
     "build:cjs": "vite build -c config/cjs.vite.ts",
-    "build": "run-s build:browser build:es build:cjs build:types"
+    "build": "run-s build:es6 build:es5 build:es build:cjs build:types"
   },
   "devDependencies": {
+    "@babel/cli": "^7.21.0",
+    "@babel/preset-env": "^7.20.2",
     "@types/chai": "^4.3.4",
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.15.7",
     "@typescript-eslint/eslint-plugin": "^5.56.0",
     "@typescript-eslint/parser": "^5.56.0",
+    "babel-preset-minify": "^0.5.2",
     "chai": "^4.3.7",
     "eslint": "^8.36.0",
     "mocha": "^10.2.0",
@@ -66,6 +74,10 @@
     "vite": "^4.2.1"
   },
   "engines": {
-    "node": ">=16"
-  }
+    "node": ">=14"
+  },
+  "browserslist": [
+    "last 2 versions",
+    "> 0.05%"
+  ]
 }

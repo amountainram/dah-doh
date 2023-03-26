@@ -1,32 +1,19 @@
 import {defineConfig} from 'vite'
-import {fileURLToPath} from 'url'
-import {dirname, resolve} from 'path'
-
-const __dirname = dirname(fileURLToPath(import.meta.url))
+import {
+  buildOptions, entry, makeRollupOptions, optimizeDeps
+} from './commons'
 
 export default defineConfig({
+  optimizeDeps,
   build: {
-    minify: false,
+    ...buildOptions,
     lib: {
-      entry: [
-        resolve(__dirname, '../src/index.ts'),
-      ],
+      entry,
       name: 'dah-doh',
       formats: ['es'],
       fileName: (_, entryName) => `${entryName}.js`
     },
-    rollupOptions: {
-      output: {
-        minifyInternalExports: false,
-        chunkFileNames: ({name}) => `${name}.js`,
-        manualChunks: (info) => {
-          if(info !== resolve(__dirname, '../src/index.ts')) {
-            return 'promises'
-          }
-        }
-      }
-    },
-    emptyOutDir: true,
+    rollupOptions: makeRollupOptions('js'),
     outDir: 'dist/es'
   },
 })
