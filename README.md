@@ -12,7 +12,7 @@ When using es modules
 import * as dns from 'doh-dah'
 ```
 
-of in commonjs
+or in commonjs
 
 ```javascript
 const dns = require('doh-dah')
