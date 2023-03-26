@@ -6,26 +6,26 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
   build: {
+    minify: false,
     lib: {
       entry: [
-        resolve(__dirname, 'src/index.ts'),
+        resolve(__dirname, '../src/index.ts'),
       ],
       name: 'dah-doh',
-      formats: ['es'],
-      fileName: (_, entryName) => `${entryName}.js`
+      formats: ['cjs'],
+      fileName: (_, entryName) => `${entryName}.cjs`
     },
     rollupOptions: {
       output: {
-        minifyInternalExports: false,
-        chunkFileNames: ({name}) => `${name}.js`,
+        chunkFileNames: ({name}) => `${name}.cjs`,
         manualChunks: (info) => {
-          if(info !== resolve(__dirname, 'src/index.ts')) {
+          if(info !== resolve(__dirname, '../src/index.ts')) {
             return 'promises'
           }
         }
       }
     },
     emptyOutDir: true,
-    outDir: 'dist'
-  }
+    outDir: 'dist/cjs'
+  },
 })

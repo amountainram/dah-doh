@@ -13,3 +13,6 @@ package-lock.json
 .idea
 
 .nvmrc
+/test-results/
+/playwright-report/
+/playwright/.cache/
