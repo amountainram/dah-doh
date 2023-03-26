@@ -9,6 +9,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const entry: LibraryOptions['entry'] = [
   resolve(__dirname, '../src/index.ts'),
   resolve(__dirname, '../src/polyfill.ts'),
+  resolve(__dirname, '../src/utils.ts')
 ]
 
 const makeRollupOptions = (chunkExtension: 'js' | 'cjs'): BuildOptions['rollupOptions'] => ({
@@ -23,6 +24,10 @@ const makeRollupOptions = (chunkExtension: 'js' | 'cjs'): BuildOptions['rollupOp
 
       if(info.match(/dah-doh\/src\/core/)) {
         return 'core'
+      }
+
+      if(info.match(/dah-doh\/src\/utils/)) {
+        return 'utils'
       }
 
       if(info === resolve(__dirname, '../src/promises.ts')) {

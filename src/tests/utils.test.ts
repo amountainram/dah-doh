@@ -1,9 +1,9 @@
 import {expect} from 'chai'
 import {describe, it} from 'mocha'
 
-import type {DnsJson} from '../dns-json'
-import type {TryIntoError} from '../validation'
-import {isDnsJson} from '../validation.js'
+import type {DnsJson} from '../core/dns-json'
+import type {TryIntoError} from '../utils.js'
+import {isDnsJson} from '../utils.js'
 
 describe('json to dns response validation', () => {
   const isDnsJsonTestCases: [unknown, Omit<TryIntoError, 'input'> | DnsJson][] = [

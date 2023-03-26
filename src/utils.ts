@@ -1,5 +1,5 @@
-import type {Answer, DnsJson} from './dns-json'
-import {DnsResponseCode, ResourceType} from './dns-json.js'
+import type {Answer, DnsJson} from './core/dns-json'
+import {DnsResponseCode, ResourceType} from './core/dns-json.js'
 
 interface TryIntoError {
   error: true,
@@ -164,63 +164,63 @@ const isDnsJson = (input: unknown): DnsJson | TryIntoError => {
 
 }
 
-// const fromNumberToResourceType = (num: number): ResourceType | undefined => {
-//   switch (num) {
-//   case 1:
-//     return ResourceType.A
-//   case 2:
-//     return ResourceType.NS
-//   case 5:
-//     return ResourceType.CNAME
-//   case 6:
-//     return ResourceType.SOA
-//   case 12:
-//     return ResourceType.PTR
-//   case 15:
-//     return ResourceType.MX
-//   case 16:
-//     return ResourceType.TXT
-//   case 28:
-//     return ResourceType.AAAA
-//   case 33:
-//     return ResourceType.SRV
-//   case 35:
-//     return ResourceType.NAPTR
-//   case 257:
-//     return ResourceType.CAA
-//   default:
-//     return undefined
-//   }
-// }
+const fromNumberToResourceType = (num: number): ResourceType | undefined => {
+  switch (num) {
+  case 1:
+    return ResourceType.A
+  case 2:
+    return ResourceType.NS
+  case 5:
+    return ResourceType.CNAME
+  case 6:
+    return ResourceType.SOA
+  case 12:
+    return ResourceType.PTR
+  case 15:
+    return ResourceType.MX
+  case 16:
+    return ResourceType.TXT
+  case 28:
+    return ResourceType.AAAA
+  case 33:
+    return ResourceType.SRV
+  case 35:
+    return ResourceType.NAPTR
+  case 257:
+    return ResourceType.CAA
+  default:
+    return undefined
+  }
+}
 
-// const fromResourceTypeToNumber = (rt: ResourceType): number | undefined => {
-//   switch (rt) {
-//   case ResourceType.A:
-//     return 1
-//   case ResourceType.AAAA:
-//     return 28
-//   case ResourceType.CAA:
-//     return 257
-//   case ResourceType.CNAME:
-//     return 5
-//   case ResourceType.MX:
-//     return 15
-//   case ResourceType.NAPTR:
-//     return 35
-//   case ResourceType.NS:
-//     return 2
-//   case ResourceType.PTR:
-//     return 12
-//   case ResourceType.SOA:
-//     return 6
-//   case ResourceType.SRV:
-//     return 33
-//   case ResourceType.TXT:
-//     return 16
-//   default:
-//     return undefined
-//   }
-// }
+const fromResourceTypeToNumber = (rt: ResourceType): number | undefined => {
+  switch (rt) {
+  case ResourceType.A:
+    return 1
+  case ResourceType.AAAA:
+    return 28
+  case ResourceType.CAA:
+    return 257
+  case ResourceType.CNAME:
+    return 5
+  case ResourceType.MX:
+    return 15
+  case ResourceType.NAPTR:
+    return 35
+  case ResourceType.NS:
+    return 2
+  case ResourceType.PTR:
+    return 12
+  case ResourceType.SOA:
+    return 6
+  case ResourceType.SRV:
+    return 33
+  case ResourceType.TXT:
+    return 16
+  default:
+    return undefined
+  }
+}
 
 const isResourceType = (input: unknown): input is ResourceType =>
   typeof input === 'string' && Object.values(ResourceType).includes(input as ResourceType)

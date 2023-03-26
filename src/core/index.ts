@@ -8,7 +8,6 @@ import type {
 } from 'dns'
 import type {DnsJson} from './dns-json'
 import * as parsers from './parsers.js'
-import {isDnsJson, isResourceType} from './validation.js'
 import {ResourceType} from './dns-json.js'
 
 type Hostname = 'dns.google/resolve' | 'cloudflare-dns.com/dns-query'
@@ -82,13 +81,11 @@ const fetch = async (info: URL, init: RequestInit & {method: string}): Promise<D
       const contentType = response.headers.get('content-type')
 
       if(contentType && acceptedTypes.includes(getContentType(contentType) as AcceptedTypes)) {
-        return response.json()
+        return response.json() as Promise<DnsJson>
       }
 
       return Promise.reject(new TypeError('Wrong content-type header'))
     })
-    .then((json) => isDnsJson(json))
-    .then((result) => 'error' in result ? Promise.reject(new TypeError(result.message)) : result)
 
 async function rawResolve(hostname: string, resourceType: ResourceType, options?: Partial<QueryOptions>): Promise<DnsJson> {
   const {protocol, fetch: fetchOptions, server} = resolveOptions(options ?? defaultOptions)
@@ -164,10 +161,8 @@ async function resolve(
 }
 
 export type {Hostname, DnsJson, Records}
-export type * from './validation'
 export * from './errors.js'
 export {
-  isResourceType,
   rawResolve,
   ResourceType,
   resolve,

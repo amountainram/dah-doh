@@ -11,7 +11,6 @@ import type {
 } from 'dns'
 import type {DnsJson, Records} from './core'
 import {
-  isResourceType,
   makeNoDataError,
   parsers,
   rawResolve,
@@ -46,7 +45,7 @@ async function resolve(hostname: string, rrtype: 'SRV'): Promise<SrvRecord[]>
 async function resolve(hostname: string, rrtype: 'TXT'): Promise<string[][]>
 async function resolve(hostname: string, rrtype: string): Promise<Records>
 async function resolve(hostname: string, rrtype?: string | undefined): Promise<Records> {
-  return isResourceType(rrtype) ? promisedResolve(hostname, rrtype) : promisedResolve(hostname)
+  return typeof rrtype === 'string' ? promisedResolve(hostname, rrtype as ResourceType) : promisedResolve(hostname)
 }
 
 const handleResolve4 = (hostname: string, options?: ResolveWithTtlOptions | ResolveOptions) => async (res: DnsJson) => {
