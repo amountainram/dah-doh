@@ -44,19 +44,23 @@
   ],
   "scripts": {
     "lint": "eslint .",
-    "test": "mocha **/*.test.ts src/tests/*.test.ts",
+    "test": "mocha './config/test-setup.ts' '**/*.test.ts' 'src/tests/*.test.ts'",
     "coverage": "nyc yarn test",
     "check-types": "tsc",
+    "dep-version": "ts-node --esm config/dep-version.ts",
     "build:types": "tsc --project config/tsconfig.types.json",
     "build:es6": "vite build",
     "build:es5": "babel dist/index.es.js -o dist/es5/index.umd.js",
     "build:es": "vite build -c config/es.vite.ts",
     "build:cjs": "vite build -c config/cjs.vite.ts",
-    "build": "run-s build:es6 build:es5 build:es build:cjs build:types"
+    "build": "run-s build:es6 build:es5 build:es build:cjs build:types",
+    "preview": "vite preview",
+    "test:e2e": "playwright test"
   },
   "devDependencies": {
     "@babel/cli": "^7.21.0",
     "@babel/preset-env": "^7.20.2",
+    "@playwright/test": "^1.32.1",
     "@types/chai": "^4.3.4",
     "@types/mocha": "^10.0.1",
     "@types/node": "^18.15.7",

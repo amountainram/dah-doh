@@ -9,7 +9,7 @@ import type {
   SoaRecord,
   SrvRecord
 } from 'dns'
-import type {Records} from './core.js'
+import type {Records} from './promises'
 import * as promises from './promises.js'
 
 interface Exception {

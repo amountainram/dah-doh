@@ -6,27 +6,12 @@ import type {
   SoaRecord,
   SrvRecord
 } from 'dns'
-import {
-  toCaaRecords,
-  toMxRecords, toSoaRecord, toSrvRecords, toStrings, toText
-} from './parsers'
-import {isDnsJson} from './validation'
+import type {DnsJson} from './dns-json'
+import * as parsers from './parsers.js'
+import {isDnsJson, isResourceType} from './validation.js'
+import {ResourceType} from './dns-json.js'
 
 type Hostname = 'dns.google/resolve' | 'cloudflare-dns.com/dns-query'
-
-enum ResourceType {
-  A = 'A',
-  AAAA = 'AAAA',
-  CNAME = 'CNAME',
-  CAA = 'CAA',
-  MX = 'MX',
-  NAPTR = 'NAPTR',
-  NS = 'NS',
-  PTR = 'PTR',
-  SOA = 'SOA',
-  SRV = 'SRV',
-  TXT = 'TXT'
-}
 
 enum Protocol {
   HTTP = 'http',
@@ -38,65 +23,10 @@ enum AcceptedTypes {
   DNSJSON = 'application/dns-json'
 }
 
-enum DnsResponseCode {
-  // No error condition
-  NoError = 0,
-  // Format error: -  The name server was
-  //                  unable to interpret the query.
-  FormatError = 1,
-  // Server failure:  The name server was
-  //                  unable to process this query due to a
-  //                  problem with the name server.
-  ServerFailure = 2,
-  // Name Error:      Meaningful only for
-  //                  responses from an authoritative name
-  //                  server, this code signifies that the
-  //                  domain name referenced in the query does
-  //                  not exist.
-  NameError = 3,
-  // Not Implemented: The name server does
-  //                  not support the requested kind of query.
-  NotImplemented = 4,
-  // Refused:       - The name server refuses to
-  //                  perform the specified operation for
-  //                  policy reasons.  For example, a name
-  //                  server may not wish to provide the
-  //                  information to the particular requester,
-  //                  or a name server may not wish to perform
-  //                  a particular operation (e.g., zone
-  //                  transfer) for particular data.
-  Refused = 5,
-}
-
 interface QueryOptions {
   protocol: Protocol
   server: Hostname | string
   fetch: RequestInit & {method: string}
-}
-
-interface Question {
-  name: string,
-  type: number
-}
-
-interface Answer {
-  name: string
-  type: number,
-  TTL: number,
-  data: string
-}
-
-interface DnsJson {
-  Status: DnsResponseCode,
-  TC: boolean,
-  RD: boolean,
-  RA: boolean,
-  AD: boolean,
-  CD: boolean,
-  Question: Question[]
-  Answer?: Answer[]
-  Authority?: Answer[]
-  Comment?: string
 }
 
 type Records = string[] | CaaRecord[] | MxRecord[] | NaptrRecord[] | SoaRecord | SrvRecord[] | string[][] | AnyRecord[]
@@ -207,26 +137,26 @@ async function resolve(
   let pd: (dnsJson: DnsJson) => Records
   switch (rt) {
   case ResourceType.MX:
-    pd = toMxRecords
+    pd = parsers.toMxRecords
     break
   case ResourceType.SOA:
-    pd = toSoaRecord
+    pd = parsers.toSoaRecord
     break
   case ResourceType.SRV:
-    pd = toSrvRecords
+    pd = parsers.toSrvRecords
     break
   case ResourceType.TXT:
-    pd = toText
+    pd = parsers.toText
     break
   case ResourceType.CAA:
-    pd = toCaaRecords
+    pd = parsers.toCaaRecords
     break
   case ResourceType.A:
   case ResourceType.AAAA:
   case ResourceType.CNAME:
   case ResourceType.NS:
   default:
-    pd = toStrings
+    pd = parsers.toStrings
     break
   }
   return rawResolve(name, rt, incomingOptions)
@@ -234,4 +164,12 @@ async function resolve(
 }
 
 export type {Hostname, DnsJson, Records}
-export {ResourceType, rawResolve, resolve, DnsResponseCode}
+export type * from './validation'
+export * from './errors.js'
+export {
+  isResourceType,
+  rawResolve,
+  ResourceType,
+  resolve,
+  parsers
+}

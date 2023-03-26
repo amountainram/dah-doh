@@ -16,13 +16,6 @@ const {
 } = promises
 
 describe('node impl vs this lib impl', () => {
-  const {fetch: originalFetch} = globalThis
-  before(async () => {
-    if (typeof originalFetch === 'undefined') {
-      await import('../src/polyfill')
-    }
-  })
-
   it('test ipv4 response', async () => {
     const hostname = 'dns.google'
     const [nativeRes, res] = await Promise.all([

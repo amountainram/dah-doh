@@ -21,11 +21,15 @@ const makeRollupOptions = (chunkExtension: 'js' | 'cjs'): BuildOptions['rollupOp
         return 'index'
       }
 
-      if(info === resolve(__dirname, '../src/polyfill.ts') || !info.match(/dah-doh\/src/)) {
-        return 'polyfill'
+      if(info.match(/dah-doh\/src\/core/)) {
+        return 'core'
       }
 
-      return 'promises'
+      if(info === resolve(__dirname, '../src/promises.ts')) {
+        return 'promises'
+      }
+
+      return 'polyfill'
     }
   }
 })

@@ -1,15 +1,33 @@
 import type {
-  AnyRecord, CaaRecord, MxRecord, NaptrRecord, RecordWithTtl, ResolveOptions, ResolveWithTtlOptions, SoaRecord, SrvRecord
+  AnyRecord,
+  CaaRecord,
+  MxRecord,
+  NaptrRecord,
+  RecordWithTtl,
+  ResolveOptions,
+  ResolveWithTtlOptions,
+  SoaRecord,
+  SrvRecord
 } from 'dns'
-import type {DnsJson, Records} from './core.js'
-import {rawResolve} from './core.js'
-import {ResourceType} from './core.js'
-import {resolve as promisedResolve} from './core.js'
-import {makeNoDataError} from './errors.js'
+import type {DnsJson, Records} from './core'
 import {
-  hasData, toAddresses, toCaaRecords, toMxRecords, toNaptrRecords, toRecordWithTtl, toStrings
-} from './parsers.js'
-import {isResourceType} from './validation.js'
+  isResourceType,
+  makeNoDataError,
+  parsers,
+  rawResolve,
+  resolve as promisedResolve,
+  ResourceType
+} from './core/index.js'
+
+const {
+  hasData,
+  toAddresses,
+  toCaaRecords,
+  toMxRecords,
+  toNaptrRecords,
+  toRecordWithTtl,
+  toStrings
+} = parsers
 
 async function resolve(hostname: string): Promise<string[]>
 async function resolve(hostname: string, rrtype: 'A'): Promise<string[]>
@@ -122,6 +140,7 @@ async function resolvePtr(hostname: string): Promise<string[]> {
     )
 }
 
+export type {Records}
 export {
   resolve,
   resolve4,
