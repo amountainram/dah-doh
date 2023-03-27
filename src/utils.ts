@@ -1,5 +1,5 @@
-import type {Answer, DnsJson} from './core/dns-json'
-import {DnsResponseCode, ResourceType} from './core/dns-json.js'
+import type {Answer, DnsJson} from './core'
+import {DnsResponseCode, ResourceType} from './core'
 
 interface TryIntoError {
   error: true,

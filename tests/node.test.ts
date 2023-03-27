@@ -4,7 +4,7 @@ import {describe, it} from 'mocha'
 
 import {promises} from '../src'
 import type {
-  AnyARecord, AnyNsRecord, AnyTxtRecord, SoaRecord
+  AnyNsRecord, AnyTxtRecord, SoaRecord
 } from 'dns'
 
 const {
@@ -19,6 +19,7 @@ const {
   resolveSoa,
   resolveTxt,
   resolveAny,
+  reverse,
 } = promises
 
 describe('node impl vs this lib impl', () => {
@@ -138,7 +139,12 @@ describe('node impl vs this lib impl', () => {
 
     const txt = res.filter(({type}) => type === 'TXT').map((item) => (item as AnyTxtRecord).entries).flat()
     const txtNative = nativeRes.filter(({type}) => type === 'TXT').map((item) => (item as AnyTxtRecord).entries).flat()
-    expect(txt).to.have.members(txtNative)
+    // depends on server
+    if(txtNative.length !== 0) {
+      expect(txt).to.have.members(txtNative)
+    } else {
+      console.warn('no TXT returned')
+    }
 
     const ns = res.filter(({type}) => type === 'NS').map((item) => (item as AnyNsRecord).value)
     const nsNative = nativeRes.filter(({type}) => type === 'NS').map((item) => (item as AnyNsRecord).value)
@@ -147,17 +153,34 @@ describe('node impl vs this lib impl', () => {
     const mx = res.filter(({type}) => type === 'MX')
     const mxNative = nativeRes.filter(({type}) => type === 'MX')
     expect(mx).to.have.deep.members(mxNative)
-    // const outAs = res.filter(({type}) => type === 'A').sort((a, b) => {
-    //   const {address: aAddr} = (a as AnyARecord)
-    //   const {address: bAddr} = (b as AnyARecord)
-    //   return aAddr > bAddr ? 1 : aAddr < bAddr ? -1 : 0
-    // })
-    // const As = nativeRes.filter(({type}) => type === 'A').sort((a, b) => {
-    //   const {address: aAddr} = (a as AnyARecord)
-    //   const {address: bAddr} = (b as AnyARecord)
-    //   return aAddr > bAddr ? 1 : aAddr < bAddr ? -1 : 0
-    // })
 
-    // expect(outAs).to.have.deep.members(As)
+    const caa = res.filter(({type}) => type === 'CAA')
+    const caaNative = nativeRes.filter(({type}) => type as string === 'CAA')
+    // depends on server
+    if(caaNative.length !== 0) {
+      expect(caa).to.have.deep.members(caaNative)
+    } else {
+      console.warn('no CAA returned')
+    }
+  })
+
+  it('should reverse an ipv4', async () => {
+    const ip = '8.8.8.8'
+    const [nativeRes, res] = await Promise.all([
+      dns.reverse(ip),
+      reverse(ip)
+    ])
+    
+    expect(res).to.have.members(nativeRes)
+  })
+
+  it('should reverse an ipv6', async () => {
+    const ip = '2001:4860:4860::8888'
+    const [nativeRes, res] = await Promise.all([
+      dns.reverse(ip),
+      reverse(ip)
+    ])
+    
+    expect(res).to.have.members(nativeRes)
   })
 })

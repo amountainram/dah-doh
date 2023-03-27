@@ -1,5 +1,5 @@
 import type {
-  AnyRecord,
+  AnyRecord as NativeAnyRecord,
   CaaRecord,
   MxRecord,
   NaptrRecord,
@@ -12,6 +12,12 @@ import {ResourceType} from './dns-json.js'
 interface Parsable {
   Answer?: Answer[]
 }
+
+interface AnyCaaRecord extends CaaRecord {
+  type: 'CAA',
+}
+
+type AnyRecord = NativeAnyRecord | AnyCaaRecord
 
 const noFinalDot = (input: string) => input.replace(/\.?$/, '')
 
@@ -153,7 +159,6 @@ const toSrvRecords = ({Answer = []}: Parsable) => Answer.map((entry) =>
   getDataAndSplit(entry).reduce(srvRecordReducer, {}) as SrvRecord
 )
 
-// export type AnyRecord = AnyARecord | AnyAaaaRecord | AnyCnameRecord | AnyMxRecord | AnyNaptrRecord | AnyNsRecord | AnyPtrRecord | AnySoaRecord | AnySrvRecord | AnyTxtRecord;
 const getParser = ({type, ...entry}: Omit<Answer, 'data'>): ((data: string) => AnyRecord) | undefined => {
   switch (type) {
   case 1:
@@ -188,6 +193,11 @@ const getParser = ({type, ...entry}: Omit<Answer, 'data'>): ((data: string) => A
       type: ResourceType.NAPTR,
       ...(split(data).reduce(naptrRecordReducer, {}) as NaptrRecord)
     })
+  case 257:
+    return (data) => ({
+      type: ResourceType.CAA,
+      ...(split(data).reduce(caaRecordReducer, {}) as CaaRecord)
+    })
   default:
     return undefined
   }
@@ -204,7 +214,29 @@ const toAnyRecords = ({Answer = []}: Parsable) => Answer.reduce<AnyRecord[]>((an
 
 const hasData = (res: Parsable): res is Required<Parsable> => res.Answer?.[0] !== undefined
 
-export type {Answer}
+const reverse4 = (ip: string) => ip.split('.').reverse().join('.').concat('.in-addr.arpa')
+
+const decompress = (ip: string): string[] => {
+  let decompressedIp = ip
+  const {length} = ip.split(':').filter(Boolean)
+  if(length < 8) {
+    const injection = Array(8 - length).fill('0000:').reduce((acc, zeros) => acc.concat(zeros), ':')
+    decompressedIp = ip.replace('::', injection).replace(/^:/, '').replace(/:$/, '')
+  }
+  return decompressedIp.split(':').map((part) => `0000${part}`.substring(part.length))
+}
+
+const reverse6 = (ip: string) => Array.from(decompress(ip).join('')).reverse().join('.').concat('.ip6.arpa')
+
+export type {
+  Answer,
+  AnyRecord,
+  CaaRecord,
+  MxRecord,
+  NaptrRecord,
+  SoaRecord,
+  SrvRecord
+}
 export {
   toStrings,
   toText,
@@ -217,4 +249,6 @@ export {
   toSrvRecords,
   toAnyRecords,
   hasData,
+  reverse4,
+  reverse6
 }
