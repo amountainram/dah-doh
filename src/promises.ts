@@ -1,4 +1,6 @@
 import type {
+  DnsJson,
+  Records,
   AnyRecord,
   CaaRecord,
   MxRecord,
@@ -8,8 +10,7 @@ import type {
   ResolveWithTtlOptions,
   SoaRecord,
   SrvRecord
-} from 'dns'
-import type {DnsJson, Records} from './core'
+} from './core'
 import {
   makeNoDataError,
   parsers,
@@ -17,6 +18,7 @@ import {
   resolve as promisedResolve,
   ResourceType
 } from './core/index.js'
+import {ExtraResourceType} from './core/dns-json'
 
 const {
   hasData,
@@ -28,7 +30,8 @@ const {
   toStrings,
   toSoaRecord,
   toSrvRecords,
-  toText
+  toText,
+  toAnyRecords
 } = parsers
 
 async function resolve(hostname: string): Promise<string[]>
@@ -169,7 +172,23 @@ async function resolveTxt(hostname: string): Promise<string[][]> {
     )
 }
 
-export type {Records}
+async function resolveAny(hostname: string): Promise<AnyRecord[]> {
+  return rawResolve(hostname, ExtraResourceType.ANY)
+    .then(
+      (res) => hasData(res)
+        ? toAnyRecords(res)
+        : Promise.reject(makeNoDataError(hostname, ExtraResourceType.ANY))
+    )
+}
+
+async function reverse(ip: string): Promise<string[]> {
+  const ptr = ip.includes('.')
+    ? parsers.reverse4(ip)
+    : parsers.reverse6(ip)
+  return resolvePtr(ptr)
+}
+
+export type * from './core'
 export {
   resolve,
   resolve4,
@@ -183,4 +202,6 @@ export {
   resolveSoa,
   resolveSrv,
   resolveTxt,
+  resolveAny,
+  reverse
 }

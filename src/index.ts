@@ -1,4 +1,5 @@
 import type {
+  Records,
   AnyRecord,
   CaaRecord,
   MxRecord,
@@ -8,8 +9,7 @@ import type {
   ResolveWithTtlOptions,
   SoaRecord,
   SrvRecord
-} from 'dns'
-import type {Records} from './promises'
+} from './promises'
 import * as promises from './promises.js'
 
 interface Exception {
@@ -157,6 +157,19 @@ function resolveTxt(hostname: string, callback: (err: NodeJS.ErrnoException | nu
     .catch((err) => callback(err, []))
 }
 
+function resolveAny(hostname: string, callback: (err: NodeJS.ErrnoException | null, addresses: AnyRecord[]) => void): void {
+  promises.resolveAny(hostname)
+    .then((data) => callback(null, data))
+    .catch((err) => callback(err, []))
+}
+
+function reverse(ip: string, callback: (err: NodeJS.ErrnoException | null, hostnames: string[]) => void): void {
+  promises.reverse(ip)
+    .then((data) => callback(null, data))
+    .catch((err) => callback(err, []))
+}
+
+export type * from './promises'
 export {
   promises,
   resolve,
@@ -171,4 +184,6 @@ export {
   resolveSoa,
   resolveSrv,
   resolveTxt,
+  resolveAny,
+  reverse
 }

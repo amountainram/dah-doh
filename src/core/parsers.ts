@@ -1,4 +1,5 @@
 import type {
+  AnyRecord as NativeAnyRecord,
   CaaRecord,
   MxRecord,
   NaptrRecord,
@@ -6,16 +7,25 @@ import type {
   SrvRecord
 } from 'dns'
 import type {Answer} from './dns-json'
+import {ResourceType} from './dns-json.js'
 
 interface Parsable {
   Answer?: Answer[]
 }
 
+interface AnyCaaRecord extends CaaRecord {
+  type: 'CAA',
+}
+
+type AnyRecord = NativeAnyRecord | AnyCaaRecord
+
 const noFinalDot = (input: string) => input.replace(/\.?$/, '')
 
 const getData = ({data}: {data: string}) => data
 
-const getDataAndSplit = (entry: {data: string}) => getData(entry).split(' ')
+const split = (data: string) => data.split(' ')
+
+const getDataAndSplit = (entry: {data: string}) => split(getData(entry))
 
 const toStrings = ({Answer = []}: Parsable) => Answer.map(getData)
 
@@ -149,9 +159,84 @@ const toSrvRecords = ({Answer = []}: Parsable) => Answer.map((entry) =>
   getDataAndSplit(entry).reduce(srvRecordReducer, {}) as SrvRecord
 )
 
+const getParser = ({type, ...entry}: Omit<Answer, 'data'>): ((data: string) => AnyRecord) | undefined => {
+  switch (type) {
+  case 1:
+    return (data) => ({type: ResourceType.A, ttl: entry.TTL, address: data})
+  case 2:
+    return (data) => ({type: ResourceType.NS, value: noFinalDot(data)})
+  case 5:
+    return (data) => ({type: ResourceType.CNAME, value: noFinalDot(data)})
+  case 6:
+    return (data) => ({
+      type: ResourceType.SOA,
+      ...(split(data).reduce(soaRecordReducer, {}) as SoaRecord)
+    })
+  case 12:
+    return (data) => ({type: ResourceType.PTR, value: noFinalDot(data)})
+  case 15:
+    return (data) => ({
+      type: ResourceType.MX,
+      ...(split(data).reduce(mxRecordReducer, {}) as MxRecord)
+    })
+  case 16:
+    return (data) => ({type: ResourceType.TXT, entries: [data]})
+  case 28:
+    return (data) => ({type: ResourceType.AAAA, ttl: entry.TTL, address: data})
+  case 33:
+    return (data) => ({
+      type: ResourceType.SRV,
+      ...(split(data).reduce(srvRecordReducer, {}) as SrvRecord)
+    })
+  case 35:
+    return (data) => ({
+      type: ResourceType.NAPTR,
+      ...(split(data).reduce(naptrRecordReducer, {}) as NaptrRecord)
+    })
+  case 257:
+    return (data) => ({
+      type: ResourceType.CAA,
+      ...(split(data).reduce(caaRecordReducer, {}) as CaaRecord)
+    })
+  default:
+    return undefined
+  }
+}
+
+const toAnyRecords = ({Answer = []}: Parsable) => Answer.reduce<AnyRecord[]>((answers, {data, ...entry}) => {
+  const parser = getParser(entry)
+  if(parser) {
+    answers.push(parser(data))
+  }
+  
+  return answers
+}, [])
+
 const hasData = (res: Parsable): res is Required<Parsable> => res.Answer?.[0] !== undefined
 
-export type {Answer}
+const reverse4 = (ip: string) => ip.split('.').reverse().join('.').concat('.in-addr.arpa')
+
+const decompress = (ip: string): string[] => {
+  let decompressedIp = ip
+  const {length} = ip.split(':').filter(Boolean)
+  if(length < 8) {
+    const injection = Array(8 - length).fill('0000:').reduce((acc, zeros) => acc.concat(zeros), ':')
+    decompressedIp = ip.replace('::', injection).replace(/^:/, '').replace(/:$/, '')
+  }
+  return decompressedIp.split(':').map((part) => `0000${part}`.substring(part.length))
+}
+
+const reverse6 = (ip: string) => Array.from(decompress(ip).join('')).reverse().join('.').concat('.ip6.arpa')
+
+export type {
+  Answer,
+  AnyRecord,
+  CaaRecord,
+  MxRecord,
+  NaptrRecord,
+  SoaRecord,
+  SrvRecord
+}
 export {
   toStrings,
   toText,
@@ -162,5 +247,8 @@ export {
   toNaptrRecords,
   toSoaRecord,
   toSrvRecords,
+  toAnyRecords,
   hasData,
+  reverse4,
+  reverse6
 }

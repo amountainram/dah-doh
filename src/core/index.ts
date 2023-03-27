@@ -1,14 +1,20 @@
 import type {
+  RecordWithTtl,
+  ResolveOptions,
+  ResolveWithTtlOptions,
+} from 'dns'
+import type {DnsJson, ExtraResourceType} from './dns-json'
+import type {
+  Answer,
   AnyRecord,
   CaaRecord,
   MxRecord,
   NaptrRecord,
   SoaRecord,
   SrvRecord
-} from 'dns'
-import type {DnsJson} from './dns-json'
+} from './parsers'
 import * as parsers from './parsers.js'
-import {ResourceType} from './dns-json.js'
+import {DnsResponseCode, ResourceType} from './dns-json.js'
 
 type Hostname = 'dns.google/resolve' | 'cloudflare-dns.com/dns-query'
 
@@ -87,7 +93,7 @@ const fetch = async (info: URL, init: RequestInit & {method: string}): Promise<D
       return Promise.reject(new TypeError('Wrong content-type header'))
     })
 
-async function rawResolve(hostname: string, resourceType: ResourceType, options?: Partial<QueryOptions>): Promise<DnsJson> {
+async function rawResolve(hostname: string, resourceType: ResourceType | ExtraResourceType, options?: Partial<QueryOptions>): Promise<DnsJson> {
   const {protocol, fetch: fetchOptions, server} = resolveOptions(options ?? defaultOptions)
   const {protocol: currentProtocol} = server.match(/^(<?protocol>[^:]+):\/\//)?.groups ?? {}
   const info = currentProtocol !== undefined ? server : `${protocol}://${server}`
@@ -160,9 +166,24 @@ async function resolve(
     .then(pd)
 }
 
-export type {Hostname, DnsJson, Records}
+export type {
+  Answer,
+  Hostname,
+  DnsJson,
+  Records,
+  AnyRecord,
+  CaaRecord,
+  MxRecord,
+  NaptrRecord,
+  SoaRecord,
+  SrvRecord,
+  RecordWithTtl,
+  ResolveOptions,
+  ResolveWithTtlOptions,
+}
 export * from './errors.js'
 export {
+  DnsResponseCode,
   rawResolve,
   ResourceType,
   resolve,

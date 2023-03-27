@@ -3,7 +3,9 @@ import * as dns from 'dns/promises'
 import {describe, it} from 'mocha'
 
 import {promises} from '../src'
-import type {SoaRecord} from 'dns'
+import type {
+  AnyNsRecord, AnyTxtRecord, SoaRecord
+} from 'dns'
 
 const {
   resolve4,
@@ -15,7 +17,9 @@ const {
   resolveNs,
   resolvePtr,
   resolveSoa,
-  resolveTxt
+  resolveTxt,
+  resolveAny,
+  reverse,
 } = promises
 
 describe('node impl vs this lib impl', () => {
@@ -120,5 +124,63 @@ describe('node impl vs this lib impl', () => {
     ])
 
     expect(res).to.have.deep.members(nativeRes)
+  })
+
+  it('should resolve ANY records', async () => {
+    const hostname = 'google.com'
+    const [nativeRes, res] = await Promise.all([
+      dns.resolveAny(hostname),
+      resolveAny(hostname)
+    ])
+
+    const asCount = res.filter(({type}) => type === 'A').length
+    const asNativeCount = nativeRes.filter(({type}) => type === 'A').length
+    expect(asCount).to.be.equal(asNativeCount)
+
+    const txt = res.filter(({type}) => type === 'TXT').map((item) => (item as AnyTxtRecord).entries).flat()
+    const txtNative = nativeRes.filter(({type}) => type === 'TXT').map((item) => (item as AnyTxtRecord).entries).flat()
+    // depends on server
+    if(txtNative.length !== 0) {
+      expect(txt).to.have.members(txtNative)
+    } else {
+      console.warn('no TXT returned')
+    }
+
+    const ns = res.filter(({type}) => type === 'NS').map((item) => (item as AnyNsRecord).value)
+    const nsNative = nativeRes.filter(({type}) => type === 'NS').map((item) => (item as AnyNsRecord).value)
+    expect(ns).to.have.members(nsNative)
+
+    const mx = res.filter(({type}) => type === 'MX')
+    const mxNative = nativeRes.filter(({type}) => type === 'MX')
+    expect(mx).to.have.deep.members(mxNative)
+
+    const caa = res.filter(({type}) => type === 'CAA')
+    const caaNative = nativeRes.filter(({type}) => type as string === 'CAA')
+    // depends on server
+    if(caaNative.length !== 0) {
+      expect(caa).to.have.deep.members(caaNative)
+    } else {
+      console.warn('no CAA returned')
+    }
+  })
+
+  it('should reverse an ipv4', async () => {
+    const ip = '8.8.8.8'
+    const [nativeRes, res] = await Promise.all([
+      dns.reverse(ip),
+      reverse(ip)
+    ])
+    
+    expect(res).to.have.members(nativeRes)
+  })
+
+  it('should reverse an ipv6', async () => {
+    const ip = '2001:4860:4860::8888'
+    const [nativeRes, res] = await Promise.all([
+      dns.reverse(ip),
+      reverse(ip)
+    ])
+    
+    expect(res).to.have.members(nativeRes)
   })
 })
