@@ -164,6 +164,8 @@ const isDnsJson = (input: unknown): DnsJson | TryIntoError => {
 
 }
 
+// TODO: here for reference
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const fromNumberToResourceType = (num: number): ResourceType | undefined => {
   switch (num) {
   case 1:
@@ -193,6 +195,8 @@ const fromNumberToResourceType = (num: number): ResourceType | undefined => {
   }
 }
 
+// TODO: here for reference
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const fromResourceTypeToNumber = (rt: ResourceType): number | undefined => {
   switch (rt) {
   case ResourceType.A:
