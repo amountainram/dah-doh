@@ -54,6 +54,7 @@
     "build:cjs": "vite build -c config/cjs.vite.ts",
     "build": "run-s build:es6 build:es5 build:es build:cjs build:types",
     "preview": "vite preview",
+    "bump": "yarn ts-node --esm config/bump.ts",
     "test:e2e": "playwright test"
   },
   "devDependencies": {
