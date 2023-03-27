@@ -3,7 +3,9 @@ import * as dns from 'dns/promises'
 import {describe, it} from 'mocha'
 
 import {promises} from '../src'
-import type {SoaRecord} from 'dns'
+import type {
+  AnyARecord, AnyNsRecord, AnyTxtRecord, SoaRecord
+} from 'dns'
 
 const {
   resolve4,
@@ -15,7 +17,8 @@ const {
   resolveNs,
   resolvePtr,
   resolveSoa,
-  resolveTxt
+  resolveTxt,
+  resolveAny,
 } = promises
 
 describe('node impl vs this lib impl', () => {
@@ -120,5 +123,41 @@ describe('node impl vs this lib impl', () => {
     ])
 
     expect(res).to.have.deep.members(nativeRes)
+  })
+
+  it('should resolve ANY records', async () => {
+    const hostname = 'google.com'
+    const [nativeRes, res] = await Promise.all([
+      dns.resolveAny(hostname),
+      resolveAny(hostname)
+    ])
+
+    const asCount = res.filter(({type}) => type === 'A').length
+    const asNativeCount = nativeRes.filter(({type}) => type === 'A').length
+    expect(asCount).to.be.equal(asNativeCount)
+
+    const txt = res.filter(({type}) => type === 'TXT').map((item) => (item as AnyTxtRecord).entries).flat()
+    const txtNative = nativeRes.filter(({type}) => type === 'TXT').map((item) => (item as AnyTxtRecord).entries).flat()
+    expect(txt).to.have.members(txtNative)
+
+    const ns = res.filter(({type}) => type === 'NS').map((item) => (item as AnyNsRecord).value)
+    const nsNative = nativeRes.filter(({type}) => type === 'NS').map((item) => (item as AnyNsRecord).value)
+    expect(ns).to.have.members(nsNative)
+
+    const mx = res.filter(({type}) => type === 'MX')
+    const mxNative = nativeRes.filter(({type}) => type === 'MX')
+    expect(mx).to.have.deep.members(mxNative)
+    // const outAs = res.filter(({type}) => type === 'A').sort((a, b) => {
+    //   const {address: aAddr} = (a as AnyARecord)
+    //   const {address: bAddr} = (b as AnyARecord)
+    //   return aAddr > bAddr ? 1 : aAddr < bAddr ? -1 : 0
+    // })
+    // const As = nativeRes.filter(({type}) => type === 'A').sort((a, b) => {
+    //   const {address: aAddr} = (a as AnyARecord)
+    //   const {address: bAddr} = (b as AnyARecord)
+    //   return aAddr > bAddr ? 1 : aAddr < bAddr ? -1 : 0
+    // })
+
+    // expect(outAs).to.have.deep.members(As)
   })
 })

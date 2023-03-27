@@ -1,6 +1,4 @@
 import type {
-  AnyARecord,
-  AnyNsRecord,
   AnyRecord,
   CaaRecord,
   MxRecord,
@@ -19,7 +17,9 @@ const noFinalDot = (input: string) => input.replace(/\.?$/, '')
 
 const getData = ({data}: {data: string}) => data
 
-const getDataAndSplit = (entry: {data: string}) => getData(entry).split(' ')
+const split = (data: string) => data.split(' ')
+
+const getDataAndSplit = (entry: {data: string}) => split(getData(entry))
 
 const toStrings = ({Answer = []}: Parsable) => Answer.map(getData)
 
@@ -153,30 +153,41 @@ const toSrvRecords = ({Answer = []}: Parsable) => Answer.map((entry) =>
   getDataAndSplit(entry).reduce(srvRecordReducer, {}) as SrvRecord
 )
 
+// export type AnyRecord = AnyARecord | AnyAaaaRecord | AnyCnameRecord | AnyMxRecord | AnyNaptrRecord | AnyNsRecord | AnyPtrRecord | AnySoaRecord | AnySrvRecord | AnyTxtRecord;
 const getParser = ({type, ...entry}: Omit<Answer, 'data'>): ((data: string) => AnyRecord) | undefined => {
   switch (type) {
   case 1:
-    return (data) => ({type: ResourceType.A, ttl: entry.TTL, address: noFinalDot(data)}) as AnyARecord
+    return (data) => ({type: ResourceType.A, ttl: entry.TTL, address: data})
   case 2:
-    return (data) => ({type: ResourceType.NS, value: noFinalDot(data)}) as AnyNsRecord
-  // case 5:
-  //   return {type: ResourceType.CNAME, parser: undefined}
-  // case 6:
-  //   return {type: ResourceType.SOA, parser: undefined}
-  // case 12:
-  //   return {type: ResourceType.PTR, parser: undefined}
-  // case 15:
-  //   return {type: ResourceType.MX, parser: undefined}
-  // case 16:
-  //   return ResourceType.TXT
-  // case 28:
-  //   return ResourceType.AAAA
-  // case 33:
-  //   return ResourceType.SRV
-  // case 35:
-  //   return ResourceType.NAPTR
-  // case 257:
-  //   return ResourceType.CAA
+    return (data) => ({type: ResourceType.NS, value: noFinalDot(data)})
+  case 5:
+    return (data) => ({type: ResourceType.CNAME, value: noFinalDot(data)})
+  case 6:
+    return (data) => ({
+      type: ResourceType.SOA,
+      ...(split(data).reduce(soaRecordReducer, {}) as SoaRecord)
+    })
+  case 12:
+    return (data) => ({type: ResourceType.PTR, value: noFinalDot(data)})
+  case 15:
+    return (data) => ({
+      type: ResourceType.MX,
+      ...(split(data).reduce(mxRecordReducer, {}) as MxRecord)
+    })
+  case 16:
+    return (data) => ({type: ResourceType.TXT, entries: [data]})
+  case 28:
+    return (data) => ({type: ResourceType.AAAA, ttl: entry.TTL, address: data})
+  case 33:
+    return (data) => ({
+      type: ResourceType.SRV,
+      ...(split(data).reduce(srvRecordReducer, {}) as SrvRecord)
+    })
+  case 35:
+    return (data) => ({
+      type: ResourceType.NAPTR,
+      ...(split(data).reduce(naptrRecordReducer, {}) as NaptrRecord)
+    })
   default:
     return undefined
   }
