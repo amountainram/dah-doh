@@ -108,7 +108,7 @@ const main = async () => {
 
   // git
   const tag = `v${newVersion}`
-  const message = `"dah-doh tagged at version ${newVersion}"`
+  const message = `dah-doh tagged at version ${newVersion}`
   const files = [
     resolve(workingDir, 'package.json'),
     changelogPath
