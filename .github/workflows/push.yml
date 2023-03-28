@@ -1,4 +1,4 @@
-name: 'branch push'
+name: Branch Push
 
 on:
   push:
@@ -20,12 +20,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: yarn
-
-      - name: Configure yarn
-        run: |
-          yarn set version stable
-          yarn config set nodeLinker node-modules
-          yarn plugin import version
 
       - name: Install
         run: yarn install --immutable

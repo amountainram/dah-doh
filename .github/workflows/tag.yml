@@ -1,0 +1,44 @@
+name: Tag Release
+
+env:
+  NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
+on:
+  push:
+    tags:
+      - 'v**'
+
+jobs:
+  next-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-version.outputs.verstion }}
+
+    steps:
+      - name: Get Version
+        id: get-version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "version=$(echo ${VERSION} | sed s/^v//)" >> $GITHUB_OUTPUT
+
+  release:
+    needs:
+      - next-version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: yarn
+
+      - name: Install
+        run: yarn install --immutable
+
+      - name: Build
+        run: yarn build
+
+      - name: Publish
+        run: yarn npm publish
