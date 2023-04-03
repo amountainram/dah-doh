@@ -1,0 +1,14 @@
+name: Test Dispatch
+
+on:
+  repository_dispatch:
+    types:
+      - test_event
+      
+jobs:
+  test-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: echo
+        run: |
+          echo 'DONE'
